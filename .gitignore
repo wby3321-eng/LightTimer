@@ -1,0 +1,33 @@
+# Build artifacts
+app/build/
+*.apk
+*.idsig
+
+# Signing private key — NEVER commit
+app/lt.jks
+*.jks
+*.keystore
+
+# Generated intermediate files (regenerable via fetch_ir.py)
+out/*.raw
+out/*.enc
+out/*.bin
+
+# OS / IDE
+.DS_Store
+.idea/
+*.iml
+
+# Trae IDE local config (but keep project skills)
+.trae/*
+!.trae/skills/
+!.trae/skills/**
+
+# Temp / scratch files
+/tmp/
+*.log
+
+# Backup / swap
+*.swp
+*.bak
+*~

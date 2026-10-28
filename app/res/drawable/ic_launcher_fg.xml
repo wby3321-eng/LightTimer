@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色主题：深蓝黑底 + 青绿灯泡 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 灯泡玻璃轮廓（青绿填充） -->
+    <path
+        android:fillColor="#4ECDC4"
+        android:pathData="M54,30
+            C67,30 78,41 78,54
+            C78,63 73,69 68,72
+            C66,73 65,75 65,78 L65,82
+            L43,82 L43,78
+            C43,75 42,73 40,72
+            C36,69 30,63 30,54
+            C30,41 41,30 54,30 Z" />
+
+    <!-- 灯座矩形 -->
+    <path
+        android:fillColor="#2A3640"
+        android:pathData="M47,86 L61,86 L61,92 L47,92 Z" />
+
+</vector>

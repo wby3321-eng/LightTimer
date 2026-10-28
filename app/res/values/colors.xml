@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色主题：深蓝黑底 + 青绿强调 -->
+<resources>
+    <color name="primary">#4ECDC4</color>          <!-- 选中态青绿 -->
+    <color name="primary_dark">#3DBDB5</color>
+    <color name="accent">#4ECDC4</color>
+    <color name="bg_page">#1A2226</color>           <!-- 主界面深蓝黑 -->
+    <color name="bg_card">#232D33</color>           <!-- 弹窗/卡片稍亮 -->
+    <color name="item_bg">#232D33</color>
+    <color name="item_border">#2F3A40</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#8B9BA6</color>
+    <color name="status_ok">#4ECDC4</color>
+    <color name="status_err">#FF6B6B</color>
+    <color name="divider">#2F3A40</color>
+    <color name="pill_off">#2A3640</color>          <!-- 未选中胶囊深灰 -->
+    <color name="pill_selected">#4ECDC4</color>
+</resources>

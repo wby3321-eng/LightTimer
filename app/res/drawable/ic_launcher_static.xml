@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v26 fallback：深蓝黑底圆角方框 + 青绿灯泡 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#1A2226" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_launcher_fg"
+        android:gravity="center" />
+</layer-list>
