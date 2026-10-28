@@ -9,6 +9,7 @@ app/lt.jks
 *.keystore
 
 # Generated intermediate files (regenerable via fetch_ir.py)
+out/*
 out/*.raw
 out/*.enc
 out/*.bin
@@ -19,9 +20,8 @@ out/*.bin
 *.iml
 
 # Trae IDE local config (but keep project skills)
-.trae/*
-!.trae/skills/
-!.trae/skills/**
+.trae/
+
 
 # Temp / scratch files
 /tmp/
