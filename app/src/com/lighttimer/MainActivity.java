@@ -610,26 +610,11 @@ public class MainActivity extends Activity {
     }
     private void addItem() {
         int id = AlarmStore.newId(this);
-        List<AlarmStore.Item> list = AlarmStore.load(this);
-        if (!list.isEmpty()) {
-            AlarmStore.Item last = list.get(list.size() - 1);
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.HOUR_OF_DAY, last.hour);
-            c.set(Calendar.MINUTE, last.minute);
-            c.add(Calendar.MINUTE, 1);
-            AlarmStore.Item it = new AlarmStore.Item(id,
-                    c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE),
-                    true, "", last.action, last.repeat, last.weekdayMask,
-                    last.onceYear, last.onceMonth, last.onceDay);
-            editItem(it);
-        } else {
-            Calendar c = Calendar.getInstance();
-            c.add(Calendar.HOUR_OF_DAY, 1);
-            c.set(Calendar.MINUTE, 0);
-            AlarmStore.Item it = new AlarmStore.Item(id, c.get(Calendar.HOUR_OF_DAY),
-                    0, true, "", AlarmStore.ACTION_OFF);
-            editItem(it);
-        }
+        Calendar c = Calendar.getInstance();
+        int h = c.get(Calendar.HOUR_OF_DAY);
+        int m = c.get(Calendar.MINUTE);
+        AlarmStore.Item it = new AlarmStore.Item(id, h, m, true, "", AlarmStore.ACTION_OFF);
+        editItem(it);
     }
 
     private void editItem(AlarmStore.Item it) {
@@ -645,6 +630,9 @@ public class MainActivity extends Activity {
         }
         // 输入框保持用户原值（新建时为空，交给 hint 显示默认值）；完成时才补默认标签。
         final String[] lblHolder = {it.label == null ? "" : it.label.trim()};
+        // 保存时间 EditText 引用，完成时主动读取最新值
+        final EditText[] hourEtHolder = new EditText[1];
+        final EditText[] minEtHolder = new EditText[1];
 
         ScrollView scroll = new ScrollView(this);
         LinearLayout box = new LinearLayout(this);
@@ -710,8 +698,9 @@ public class MainActivity extends Activity {
 
         // 两个时间列共用的 helper
         class TimeCol {
-            TimeCol(int initial, int max, boolean hour, int[] valHolder) {
+            TimeCol(int initial, int max, boolean hour, int[] valHolder, EditText[] etHolder) {
                 EditText et = new EditText(MainActivity.this);
+                etHolder[0] = et;  // 暴露引用供完成按钮读取
                 et.setText(String.format(Locale.CHINA, "%02d", initial));
                 et.setTextSize(34);
                 et.setTypeface(Typeface.DEFAULT_BOLD);
@@ -746,7 +735,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        new TimeCol(it.hour, 23, true, pH);
+        new TimeCol(it.hour, 23, true, pH, hourEtHolder);
 
         TextView colon = new TextView(this);
         colon.setText(":");
@@ -760,7 +749,7 @@ public class MainActivity extends Activity {
         colon.setLayoutParams(clp);
         pickerRow.addView(colon);
 
-        new TimeCol(it.minute, 59, false, pM);
+        new TimeCol(it.minute, 59, false, pM, minEtHolder);
 
         // ── 时间卡片：hint + pickerRow ──
         LinearLayout timeCard = sectionCard();
@@ -926,6 +915,16 @@ public class MainActivity extends Activity {
 
         cancel.setOnClickListener(v -> dialogHolder[0].dismiss());
         done.setOnClickListener(v -> {
+            // 主动从两个 EditText 读取最新值（防止用户编辑后未失焦就点完成）
+            try {
+                int h = Integer.parseInt(hourEtHolder[0].getText().toString());
+                pH[0] = Math.max(0, Math.min(23, h));
+            } catch (NumberFormatException ignored) {}
+            try {
+                int m = Integer.parseInt(minEtHolder[0].getText().toString());
+                pM[0] = Math.max(0, Math.min(59, m));
+            } catch (NumberFormatException ignored) {}
+
             int wkMask = 0;
             if (pRep[0] == AlarmStore.REPEAT_WEEKLY) {
                 for (int i = 0; i < 7; i++) if (wkSel[i]) wkMask |= (1 << i);
@@ -937,6 +936,20 @@ public class MainActivity extends Activity {
             // 标签为空 → 用默认「卧室灯」；非空 → 原样保存
             String lb = lab.getText().toString().trim();
             lblHolder[0] = lb.isEmpty() ? "卧室灯" : lb;
+
+            // 检查时间是否已过期
+            long nextAt = AlarmScheduler.nextTrigger(new AlarmStore.Item(0, pH[0], pM[0], false, "",
+                    AlarmStore.ACTION_OFF, pRep[0], wkMask, oy, om, od));
+            if (nextAt <= 0) {
+                if (pRep[0] == AlarmStore.REPEAT_ONCE) {
+                    toast("该时间已过期，不会触发");
+                } else if (pRep[0] == AlarmStore.REPEAT_WEEKLY && wkMask == 0) {
+                    toast("请至少选择一个星期");
+                    return;  // 不保存，阻止无效状态
+                } else {
+                    toast("没有可预见的触发时间");
+                }
+            }
 
             List<AlarmStore.Item> list = AlarmStore.load(this);
             AlarmStore.Item found = null;
