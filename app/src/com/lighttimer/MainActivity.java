@@ -412,6 +412,12 @@ public class MainActivity extends Activity {
     private void refresh() {
         listContainer.removeAllViews();
         List<AlarmStore.Item> list = AlarmStore.load(this);
+        // 仅影响展示顺序：按 HH:MM 从早到晚，同一时间按 id 兜底；不改存储顺序与 requestCode
+        list.sort((a, b) -> {
+            int ka = a.hour * 60 + a.minute;
+            int kb = b.hour * 60 + b.minute;
+            return ka != kb ? Integer.compare(ka, kb) : Integer.compare(a.id, b.id);
+        });
         long now = System.currentTimeMillis();
         for (AlarmStore.Item it : list) {
             if (it.repeat == AlarmStore.REPEAT_ONCE
