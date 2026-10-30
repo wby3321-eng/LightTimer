@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
     private final float[] lastLux = {Float.NaN};
     private SensorEventListener luxListener;
     private TextView holidaySubView;   // 设置页「同步节假日数据」副标题，同步完成后刷新
+    private long lastResumeScheduleMs; // onResume 重排节流，避免弹窗/权限回调触发重复全量重排
 
     private static final String[] WEEK_NAMES = {"一","二","三","四","五","六","日"};
     private static final String[] WEEK_FULL = {"一","二","三","四","五","六","日"};
@@ -123,14 +124,19 @@ public class MainActivity extends Activity {
         lightSensor = sm == null ? null : sm.getDefaultSensor(Sensor.TYPE_LIGHT);
         startLuxWatch();
 
-        AlarmScheduler.rescheduleAll(this);
         refresh();
         syncHolidayInBackground(false, "启动");
     }
 
     @Override protected void onResume() {
         super.onResume();
-        AlarmScheduler.rescheduleAll(this);
+        // 1 秒内重复 resume（弹窗收起、权限回调）不重复全量重排；
+        // 首次 resume 承担启动后的重排，onCreate 不再调用 rescheduleAll
+        long now = System.currentTimeMillis();
+        if (now - lastResumeScheduleMs > 1000L) {
+            lastResumeScheduleMs = now;
+            AlarmScheduler.rescheduleAll(this);
+        }
         refresh();
         startLuxWatch();
     }
